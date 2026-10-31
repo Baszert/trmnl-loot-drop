@@ -1,0 +1,19 @@
+<div class="layout layout--col layout--stretch-x gap--small ld">
+  <div class="ld-hud"><span class="ld-px">Loot Drop</span><span class="ld-sm">{% if loot.status == "offline" %}offline{% else %}{{ loot.count }} drops{% endif %}</span></div>
+  {%- if hero -%}
+  <div class="ld-frame ld-grow">
+    <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
+    {{ hero_body }}
+  </div>
+  <div class="ld-frame">
+    {%- for it in loot.live offset: 1 limit: 2 -%}
+    <div class="ld-slot ld-slot--tight"><span class="ld-sm ld-clip ld-grow">{{ it.title }}</span><span class="ld-tag">{{ it.store_name }}</span></div>
+    {%- endfor -%}
+  </div>
+    {%- else -%}
+  {{ empty_screen }}
+  {%- endif -%}
+  {%- if nx -%}
+  <div class="ld-toast"><span class="ld-sm ld-blink">Next</span><span class="ld-sm ld-clip ld-grow">{{ nx.title }}</span><span class="ld-sm">{{ nx_when | split: " " | first }}</span></div>
+  {%- endif -%}
+</div>

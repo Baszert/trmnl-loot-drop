@@ -1,0 +1,155 @@
+{%- comment -%} Loot Drop: a game HUD on top of the TRMNL framework. Pixel faces come from the framework (BlockKie, NicoClean, NicoPups). {%- endcomment -%}
+<style>
+  .ld { --u: var(--ui-scale, 1); --t: var(--text-ui-scale, 1); font-family: "NicoClean", monospace; }
+  .screen--lg .ld { --u: 1.45; --t: 1.45; }
+  .ld-px { font-family: "BlockKie", "NicoClean", monospace; text-transform: uppercase; letter-spacing: 1px; font-size: calc(26px * var(--t)); line-height: 1; }
+  .ld-sm { font-family: "NicoPups", monospace; font-size: calc(16px * var(--t)); line-height: 1; text-transform: uppercase; white-space: nowrap; }
+  .ld-hud { display: flex; align-items: center; justify-content: space-between; background: #000; color: #fff; padding: calc(4px * var(--u)) calc(10px * var(--u)); }
+  .ld-main { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 7fr 5fr; gap: calc(14px * var(--u)); }
+  .ld-frame { border: calc(3px * var(--u)) solid #000; box-shadow: calc(4px * var(--u)) calc(4px * var(--u)) 0 #000; background: #fff; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .ld-art { flex: 1 1 auto; min-height: 0; width: 100%; object-fit: cover; display: block; border-bottom: calc(3px * var(--u)) solid #000; }
+  .ld-body { display: flex; flex-direction: column; gap: calc(6px * var(--u)); padding: calc(8px * var(--u)); }
+  .ld-row { display: flex; align-items: center; justify-content: space-between; gap: calc(8px * var(--u)); }
+  .ld-tag { display: inline-block; border: calc(2px * var(--u)) solid #000; padding: calc(1px * var(--u)) calc(5px * var(--u)) 0; font-family: "NicoPups", monospace; font-size: calc(16px * var(--t)); line-height: 1; text-transform: uppercase; white-space: nowrap; }
+  .ld-tag--on { background: #000; color: #fff; }
+  .ld-tier { display: inline-flex; align-items: center; justify-content: center; width: calc(26px * var(--u)); height: calc(26px * var(--u)); border: calc(3px * var(--u)) solid #000; font-family: "BlockKie", monospace; font-size: calc(22px * var(--t)); line-height: 1; }
+  .ld-tier--S { background: #000; color: #fff; outline: calc(2px * var(--u)) solid #000; outline-offset: calc(2px * var(--u)); }
+  .ld-tier--A { background: #000; color: #fff; }
+  .ld-hp { display: flex; gap: calc(2px * var(--u)); }
+  .ld-hp i { flex: 1; height: calc(14px * var(--u)); border: calc(2px * var(--u)) solid #000; }
+  .ld-hp i.on { background: #000; }
+  .ld-strike { text-decoration: line-through; text-decoration-thickness: 2px; }
+  .ld-inv { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-around; }
+  .ld-thumb { width: calc(92px * var(--u)); height: calc(43px * var(--u)); object-fit: cover; border: calc(2px * var(--u)) solid #000; flex: none; }
+  .ld-slot { display: flex; gap: calc(8px * var(--u)); align-items: center; padding: calc(4px * var(--u)) calc(6px * var(--u)); }
+  .ld-slot + .ld-slot { border-top: calc(2px * var(--u)) dashed #000; }
+  .ld-col { display: flex; flex-direction: column; gap: calc(4px * var(--u)); min-width: 0; flex: 1; }
+  .ld-toast { margin-top: calc(4px * var(--u)); display: flex; align-items: center; gap: calc(10px * var(--u)); border: calc(3px * var(--u)) solid #000; padding: calc(4px * var(--u)) calc(8px * var(--u)); }
+  .ld-blink { background: #000; color: #fff; padding: calc(2px * var(--u)) calc(6px * var(--u)); }
+  .ld-bar { background: #000; color: #fff; padding: calc(4px * var(--u)) calc(8px * var(--u)); display: flex; justify-content: space-between; }
+  .ld-row--left { justify-content: flex-start; }
+  .ld-main--hh { grid-template-columns: 7fr 5fr; height: 100%; }
+  .ld-main--hh .ld-line { padding: calc(3px * var(--u)) calc(6px * var(--u)); }
+  .ld-main--hh .ld-line .ld-tag { min-width: calc(54px * var(--u)); text-align: center; }
+  .ld-frame--row { flex-direction: row; }
+  .ld-art--side { width: 36%; flex: none; height: 100%; border-bottom: 0; border-right: calc(3px * var(--u)) solid #000; }
+  .ld-frame--row .ld-body { flex: 1; min-width: 0; justify-content: center; }
+  .ld-slot--tight { padding: calc(3px * var(--u)) calc(6px * var(--u)); }
+  .ld-slot--tight .ld-tier { width: calc(20px * var(--u)); height: calc(20px * var(--u)); font-size: calc(16px * var(--t)); }
+  .ld-foot { display: flex; align-items: center; min-width: 0; }
+  .ld-foot .ld-body { min-width: 0; overflow: hidden; }
+  .ld-qrbox { display: flex; flex-direction: column; align-items: center; gap: calc(2px * var(--u)); padding-right: calc(6px * var(--u)); flex: none; }
+  .ld-qr { display: block; flex: none; }
+  .ld-qrwrap { flex: none; }
+  .ld-qrwrap > * { display: block; width: 100% !important; height: 100% !important; image-rendering: pixelated; }
+  .ld-qrwrap--lg { width: calc(96px * var(--u)); height: calc(96px * var(--u)); }
+  .ld-qrwrap--md { width: calc(76px * var(--u)); height: calc(76px * var(--u)); }
+  .ld-qrwrap--sm { width: calc(64px * var(--u)); height: calc(64px * var(--u)); }
+  .ld-thumb { height: calc(64px * var(--u)) !important; width: calc(72px * var(--u)) !important; }
+  .ld-tag--fit { align-self: flex-start; }
+  .ld-list { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .ld-line { display: flex; align-items: center; gap: calc(8px * var(--u)); padding: calc(5px * var(--u)) calc(8px * var(--u)); }
+  .ld-line + .ld-line { border-top: calc(2px * var(--u)) dashed #000; }
+  .ld-line .ld-tag { min-width: calc(84px * var(--u)); text-align: center; }
+  .ld-scene { display: flex; align-items: flex-end; gap: calc(4px * var(--u)); padding: calc(4px * var(--u)) calc(8px * var(--u)) 0; border-top: calc(3px * var(--u)) solid #000; position: relative; }
+  .ld-scene::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; border-bottom: calc(3px * var(--u)) solid #000; }
+  .ld-sprite { display: block; flex: none; width: calc(var(--sw, 48px) * var(--u)); height: auto; }
+  .ld-sprite--chest { --sw: 40px; }
+  .screen--4bit .ld-sprite .d { fill: #4a4a4a; } .screen--4bit .ld-sprite .g { fill: #8c8c8c; } .screen--4bit .ld-sprite .l { fill: #cfcfcf; }
+  .ld-bubble .ld-sm { white-space: normal; line-height: 1.15; }
+  .ld-bubble { position: relative; align-self: center; margin-bottom: calc(8px * var(--u)); min-width: 0; flex: 0 1 auto; border: calc(2px * var(--u)) solid #000; padding: calc(5px * var(--u)) calc(7px * var(--u)); display: flex; flex-direction: column; gap: calc(3px * var(--u)); margin-left: calc(6px * var(--u)); background: #fff; }
+  .ld-bubble::before { content: ""; position: absolute; left: calc(-8px * var(--u)); bottom: calc(10px * var(--u)); width: calc(10px * var(--u)); height: calc(10px * var(--u)); background: #fff; border-left: calc(2px * var(--u)) solid #000; border-bottom: calc(2px * var(--u)) solid #000; transform: rotate(45deg); }
+  .ld-empty { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: calc(18px * var(--u)); border: calc(3px * var(--u)) solid #000; box-shadow: calc(4px * var(--u)) calc(4px * var(--u)) 0 #000; min-height: 0; padding: calc(10px * var(--u)); }
+  .ld-empty-art { display: flex; align-items: flex-end; gap: calc(10px * var(--u)); }
+  .ld-empty .ld-sprite { --sw: 96px; }
+  .ld-empty .ld-sprite--chest { --sw: 80px; }
+  .ld-empty .ld-bubble { align-self: center; max-width: 55%; }
+  .ld-empty .ld-bubble .ld-px { white-space: normal; }
+  .view--half_vertical .ld-empty { flex-direction: column; }
+  .view--half_vertical .ld-empty .ld-bubble { max-width: 100%; margin-left: 0; }
+  .view--half_vertical .ld-empty .ld-bubble::before { display: none; }
+  .view--quadrant .ld-empty .ld-sprite, .view--half_horizontal .ld-empty .ld-sprite { --sw: 56px; }
+  .view--quadrant .ld-empty .ld-sprite--chest, .view--half_horizontal .ld-empty .ld-sprite--chest { --sw: 46px; }
+  .view--quadrant .ld-empty .ld-bubble .ld-px { font-size: calc(18px * var(--t)); }
+  /* Portrait (TRMNL X on its side): stack instead of side by side. */
+  .screen--portrait .ld-main { grid-template-columns: 1fr; grid-template-rows: 1.3fr 1fr; }
+  .screen--portrait .ld-main--hh { grid-template-rows: 1fr; }
+  .screen--portrait .ld-main--hh > .ld-frame:last-child { display: none; }
+  .screen--portrait .view--half_vertical .ld-art { flex: 0 0 42%; }
+  .screen--portrait .view--half_vertical .ld-frame.ld-grow { flex: 1 1 auto; }
+  .ld-clip { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+  .ld-grow { flex: 1 1 auto; }
+</style>
+{%- assign off = trmnl.user.utc_offset | default: 0 -%}
+{%- assign now_l = loot.now | plus: off -%}
+{%- assign wk = loot.week -%}
+{%- assign hero = loot.live[0] -%}
+{%- assign nx = loot.next[0] -%}
+{%- assign wd = "SUN,MON,TUE,WED,THU,FRI,SAT" | split: "," -%}{%- assign mons = "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC" | split: "," -%}
+
+{%- comment -%} Time left as 3D 04H / 14H 22M, per item, index matches loot.live. {%- endcomment -%}
+{%- assign t_left = "" -%}
+{%- for it in loot.live -%}
+  {%- if it.left -%}
+    {%- assign d = it.left | divided_by: 86400 | floor -%}{%- assign h = it.left | modulo: 86400 | divided_by: 3600 | floor -%}{%- assign mi = it.left | modulo: 3600 | divided_by: 60 | floor -%}
+    {%- if d > 0 -%}{%- capture tl -%}{{ d }}D {{ h | prepend: "0" | slice: -2, 2 }}H{%- endcapture -%}{%- else -%}{%- capture tl -%}{{ h }}H {{ mi | prepend: "0" | slice: -2, 2 }}M{%- endcapture -%}{%- endif -%}
+  {%- else -%}{%- assign tl = "NO TIMER" -%}{%- endif -%}
+  {%- assign t_left = t_left | append: tl | append: "|" -%}
+{%- endfor -%}
+{%- assign t_left = t_left | split: "|" -%}
+{%- if nx -%}
+  {%- assign nl = nx.starts | plus: off -%}{%- assign nwd = nl | date: "%w" | plus: 0 -%}{%- assign nmo = nl | date: "%m" | minus: 1 -%}
+  {%- capture nx_when -%}{{ wd[nwd] }} {{ nl | date: "%e" | strip }} {{ mons[nmo] }} {{ nl | date: "%H:%M" }}{%- endcapture -%}
+{%- endif -%}
+{%- capture svg_logo -%}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2"><rect x="3" y="9" width="18" height="12"/><path d="M3 13h18M10 13v3h4v-3"/><path d="M6 9l2-5h8l2 5"/></svg>{%- endcapture -%}
+
+{%- comment -%} Sprites (generated by dev/sprites.py, do not edit by hand). {%- endcomment -%}
+{%- capture sp_hero_wait -%}<svg class="ld-sprite ld-sprite--hero" viewBox="0 0 12 15" width="48" height="60" shape-rendering="crispEdges"><defs><pattern id="ldp-d" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#fff"/></pattern><pattern id="ldp-g" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#000"/></pattern><pattern id="ldp-l" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/></pattern></defs><rect x="4" y="0" width="4" height="1" fill="#000"/><rect x="3" y="1" width="1" height="1" fill="#000"/><rect x="8" y="1" width="1" height="1" fill="#000"/><rect class="d" x="4" y="1" width="4" height="1" fill="url(#ldp-d)"/><rect x="2" y="2" width="1" height="1" fill="#000"/><rect x="9" y="2" width="1" height="1" fill="#000"/><rect class="d" x="3" y="2" width="6" height="1" fill="url(#ldp-d)"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="9" y="3" width="1" height="1" fill="#000"/><rect class="d" x="3" y="3" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="3" width="1" height="1" fill="url(#ldp-d)"/><rect class="l" x="4" y="3" width="4" height="1" fill="url(#ldp-l)"/><rect x="2" y="4" width="1" height="1" fill="#000"/><rect x="4" y="4" width="1" height="1" fill="#000"/><rect x="7" y="4" width="1" height="1" fill="#000"/><rect x="9" y="4" width="1" height="1" fill="#000"/><rect class="l" x="3" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="5" y="4" width="2" height="1" fill="url(#ldp-l)"/><rect class="l" x="8" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect x="2" y="5" width="1" height="1" fill="#000"/><rect x="9" y="5" width="1" height="1" fill="#000"/><rect class="d" x="3" y="5" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="5" width="1" height="1" fill="url(#ldp-d)"/><rect class="l" x="4" y="5" width="4" height="1" fill="url(#ldp-l)"/><rect x="3" y="6" width="1" height="1" fill="#000"/><rect x="8" y="6" width="1" height="1" fill="#000"/><rect class="d" x="4" y="6" width="4" height="1" fill="url(#ldp-d)"/><rect x="2" y="7" width="1" height="1" fill="#000"/><rect x="9" y="7" width="1" height="1" fill="#000"/><rect class="d" x="5" y="7" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="7" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="7" width="2" height="1" fill="url(#ldp-g)"/><rect x="1" y="8" width="1" height="1" fill="#000"/><rect x="10" y="8" width="1" height="1" fill="#000"/><rect class="d" x="5" y="8" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="2" y="8" width="3" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="8" width="3" height="1" fill="url(#ldp-g)"/><rect x="1" y="9" width="1" height="1" fill="#000"/><rect x="10" y="9" width="1" height="1" fill="#000"/><rect class="d" x="5" y="9" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="9" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="9" width="2" height="1" fill="url(#ldp-g)"/><rect class="l" x="2" y="9" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="9" y="9" width="1" height="1" fill="url(#ldp-l)"/><rect x="2" y="10" width="1" height="1" fill="#000"/><rect x="9" y="10" width="1" height="1" fill="#000"/><rect class="d" x="5" y="10" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="10" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="10" width="2" height="1" fill="url(#ldp-g)"/><rect x="2" y="11" width="1" height="1" fill="#000"/><rect x="9" y="11" width="1" height="1" fill="#000"/><rect class="g" x="3" y="11" width="6" height="1" fill="url(#ldp-g)"/><rect x="3" y="12" width="1" height="1" fill="#000"/><rect x="5" y="12" width="1" height="1" fill="#000"/><rect x="7" y="12" width="1" height="1" fill="#000"/><rect x="9" y="12" width="1" height="1" fill="#000"/><rect class="d" x="4" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect x="3" y="13" width="1" height="1" fill="#000"/><rect x="5" y="13" width="1" height="1" fill="#000"/><rect x="7" y="13" width="1" height="1" fill="#000"/><rect x="9" y="13" width="1" height="1" fill="#000"/><rect class="d" x="4" y="13" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="13" width="1" height="1" fill="url(#ldp-d)"/><rect x="2" y="14" width="4" height="1" fill="#000"/><rect x="7" y="14" width="4" height="1" fill="#000"/></svg>{%- endcapture -%}
+{%- capture sp_hero_yay -%}<svg class="ld-sprite ld-sprite--hero" viewBox="0 0 12 15" width="48" height="60" shape-rendering="crispEdges"><defs><pattern id="ldp-d" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#fff"/></pattern><pattern id="ldp-g" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#000"/></pattern><pattern id="ldp-l" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/></pattern></defs><rect x="4" y="0" width="4" height="1" fill="#000"/><rect x="3" y="1" width="1" height="1" fill="#000"/><rect x="8" y="1" width="1" height="1" fill="#000"/><rect class="d" x="4" y="1" width="4" height="1" fill="url(#ldp-d)"/><rect x="1" y="2" width="1" height="1" fill="#000"/><rect x="3" y="2" width="1" height="1" fill="#000"/><rect x="8" y="2" width="1" height="1" fill="#000"/><rect x="10" y="2" width="1" height="1" fill="#000"/><rect class="d" x="4" y="2" width="4" height="1" fill="url(#ldp-d)"/><rect x="0" y="3" width="1" height="1" fill="#000"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="9" y="3" width="1" height="1" fill="#000"/><rect x="11" y="3" width="1" height="1" fill="#000"/><rect class="d" x="3" y="3" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="3" width="1" height="1" fill="url(#ldp-d)"/><rect class="l" x="1" y="3" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="4" y="3" width="4" height="1" fill="url(#ldp-l)"/><rect class="l" x="10" y="3" width="1" height="1" fill="url(#ldp-l)"/><rect x="0" y="4" width="1" height="1" fill="#000"/><rect x="2" y="4" width="1" height="1" fill="#000"/><rect x="4" y="4" width="1" height="1" fill="#000"/><rect x="7" y="4" width="1" height="1" fill="#000"/><rect x="9" y="4" width="1" height="1" fill="#000"/><rect x="11" y="4" width="1" height="1" fill="#000"/><rect class="g" x="1" y="4" width="1" height="1" fill="url(#ldp-g)"/><rect class="g" x="10" y="4" width="1" height="1" fill="url(#ldp-g)"/><rect class="l" x="3" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="5" y="4" width="2" height="1" fill="url(#ldp-l)"/><rect class="l" x="8" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect x="1" y="5" width="1" height="1" fill="#000"/><rect x="3" y="5" width="1" height="1" fill="#000"/><rect x="8" y="5" width="1" height="1" fill="#000"/><rect x="10" y="5" width="1" height="1" fill="#000"/><rect class="g" x="2" y="5" width="1" height="1" fill="url(#ldp-g)"/><rect class="g" x="9" y="5" width="1" height="1" fill="url(#ldp-g)"/><rect class="l" x="4" y="5" width="4" height="1" fill="url(#ldp-l)"/><rect x="2" y="6" width="1" height="1" fill="#000"/><rect x="4" y="6" width="1" height="1" fill="#000"/><rect x="7" y="6" width="1" height="1" fill="#000"/><rect x="9" y="6" width="1" height="1" fill="#000"/><rect class="d" x="5" y="6" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="6" width="1" height="1" fill="url(#ldp-g)"/><rect class="g" x="8" y="6" width="1" height="1" fill="url(#ldp-g)"/><rect x="3" y="7" width="1" height="1" fill="#000"/><rect x="8" y="7" width="1" height="1" fill="#000"/><rect class="d" x="5" y="7" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="4" y="7" width="1" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="7" width="1" height="1" fill="url(#ldp-g)"/><rect x="2" y="8" width="1" height="1" fill="#000"/><rect x="9" y="8" width="1" height="1" fill="#000"/><rect class="d" x="5" y="8" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="8" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="8" width="2" height="1" fill="url(#ldp-g)"/><rect x="2" y="9" width="1" height="1" fill="#000"/><rect x="9" y="9" width="1" height="1" fill="#000"/><rect class="d" x="5" y="9" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="9" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="9" width="2" height="1" fill="url(#ldp-g)"/><rect x="2" y="10" width="1" height="1" fill="#000"/><rect x="9" y="10" width="1" height="1" fill="#000"/><rect class="d" x="5" y="10" width="2" height="1" fill="url(#ldp-d)"/><rect class="g" x="3" y="10" width="2" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="10" width="2" height="1" fill="url(#ldp-g)"/><rect x="2" y="11" width="1" height="1" fill="#000"/><rect x="9" y="11" width="1" height="1" fill="#000"/><rect class="g" x="3" y="11" width="6" height="1" fill="url(#ldp-g)"/><rect x="3" y="12" width="1" height="1" fill="#000"/><rect x="5" y="12" width="1" height="1" fill="#000"/><rect x="7" y="12" width="1" height="1" fill="#000"/><rect x="9" y="12" width="1" height="1" fill="#000"/><rect class="d" x="4" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect x="3" y="13" width="1" height="1" fill="#000"/><rect x="5" y="13" width="1" height="1" fill="#000"/><rect x="7" y="13" width="1" height="1" fill="#000"/><rect x="9" y="13" width="1" height="1" fill="#000"/><rect class="d" x="4" y="13" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="13" width="1" height="1" fill="url(#ldp-d)"/><rect x="2" y="14" width="4" height="1" fill="#000"/><rect x="7" y="14" width="4" height="1" fill="#000"/></svg>{%- endcapture -%}
+{%- capture sp_hero_sleep -%}<svg class="ld-sprite ld-sprite--hero" viewBox="0 0 14 15" width="56" height="60" shape-rendering="crispEdges"><defs><pattern id="ldp-d" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#fff"/></pattern><pattern id="ldp-g" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#000"/></pattern><pattern id="ldp-l" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/></pattern></defs><rect x="2" y="10" width="4" height="1" fill="#000"/><rect x="1" y="11" width="1" height="1" fill="#000"/><rect x="6" y="11" width="7" height="1" fill="#000"/><rect class="d" x="2" y="11" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="5" y="11" width="1" height="1" fill="url(#ldp-d)"/><rect class="l" x="3" y="11" width="2" height="1" fill="url(#ldp-l)"/><rect x="0" y="12" width="1" height="1" fill="#000"/><rect x="3" y="12" width="1" height="1" fill="#000"/><rect x="13" y="12" width="1" height="1" fill="#000"/><rect class="d" x="1" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="6" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="g" x="7" y="12" width="6" height="1" fill="url(#ldp-g)"/><rect class="l" x="2" y="12" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="4" y="12" width="2" height="1" fill="url(#ldp-l)"/><rect x="1" y="13" width="1" height="1" fill="#000"/><rect x="6" y="13" width="1" height="1" fill="#000"/><rect x="13" y="13" width="1" height="1" fill="#000"/><rect class="d" x="2" y="13" width="4" height="1" fill="url(#ldp-d)"/><rect class="g" x="7" y="13" width="6" height="1" fill="url(#ldp-g)"/><rect x="2" y="14" width="4" height="1" fill="#000"/><rect x="7" y="14" width="6" height="1" fill="#000"/></svg>{%- endcapture -%}
+{%- capture sp_chest_shut -%}<svg class="ld-sprite ld-sprite--chest" viewBox="0 0 10 15" width="40" height="60" shape-rendering="crispEdges"><defs><pattern id="ldp-d" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#fff"/></pattern><pattern id="ldp-g" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#000"/></pattern><pattern id="ldp-l" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/></pattern></defs><rect x="1" y="7" width="8" height="1" fill="#000"/><rect x="0" y="8" width="1" height="1" fill="#000"/><rect x="9" y="8" width="1" height="1" fill="#000"/><rect class="d" x="1" y="8" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="8" width="1" height="1" fill="url(#ldp-d)"/><rect class="g" x="2" y="8" width="6" height="1" fill="url(#ldp-g)"/><rect x="0" y="9" width="1" height="1" fill="#000"/><rect x="4" y="9" width="2" height="1" fill="#000"/><rect x="9" y="9" width="1" height="1" fill="#000"/><rect class="d" x="1" y="9" width="3" height="1" fill="url(#ldp-d)"/><rect class="d" x="6" y="9" width="3" height="1" fill="url(#ldp-d)"/><rect x="0" y="10" width="1" height="1" fill="#000"/><rect x="4" y="10" width="1" height="1" fill="#000"/><rect x="6" y="10" width="1" height="1" fill="#000"/><rect x="9" y="10" width="1" height="1" fill="#000"/><rect x="5" y="10" width="1" height="1" fill="#fff"/><rect class="g" x="1" y="10" width="3" height="1" fill="url(#ldp-g)"/><rect class="g" x="7" y="10" width="2" height="1" fill="url(#ldp-g)"/><rect x="0" y="11" width="1" height="1" fill="#000"/><rect x="9" y="11" width="1" height="1" fill="#000"/><rect class="g" x="1" y="11" width="8" height="1" fill="url(#ldp-g)"/><rect x="0" y="12" width="1" height="1" fill="#000"/><rect x="9" y="12" width="1" height="1" fill="#000"/><rect class="d" x="1" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="g" x="2" y="12" width="6" height="1" fill="url(#ldp-g)"/><rect x="0" y="13" width="10" height="1" fill="#000"/><rect x="0" y="14" width="10" height="1" fill="#000"/></svg>{%- endcapture -%}
+{%- capture sp_chest_open -%}<svg class="ld-sprite ld-sprite--chest" viewBox="0 0 10 15" width="40" height="60" shape-rendering="crispEdges"><defs><pattern id="ldp-d" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#fff"/></pattern><pattern id="ldp-g" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/><rect x="0.25" y="0.25" width="0.25" height="0.25" fill="#000"/></pattern><pattern id="ldp-l" width="0.5" height="0.5" patternUnits="userSpaceOnUse"><rect width="0.5" height="0.5" fill="#fff"/><rect width="0.25" height="0.25" fill="#000"/></pattern></defs><rect class="l" x="1" y="3" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="4" y="3" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="7" y="3" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="0" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="2" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="4" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="6" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="8" y="4" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="2" y="5" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="4" y="5" width="1" height="1" fill="url(#ldp-l)"/><rect class="l" x="6" y="5" width="1" height="1" fill="url(#ldp-l)"/><rect x="1" y="7" width="8" height="1" fill="#000"/><rect x="0" y="8" width="1" height="1" fill="#000"/><rect x="9" y="8" width="1" height="1" fill="#000"/><rect class="d" x="1" y="8" width="8" height="1" fill="url(#ldp-d)"/><rect x="0" y="9" width="1" height="1" fill="#000"/><rect x="9" y="9" width="1" height="1" fill="#000"/><rect class="l" x="1" y="9" width="8" height="1" fill="url(#ldp-l)"/><rect x="0" y="10" width="1" height="1" fill="#000"/><rect x="4" y="10" width="2" height="1" fill="#000"/><rect x="9" y="10" width="1" height="1" fill="#000"/><rect class="d" x="1" y="10" width="3" height="1" fill="url(#ldp-d)"/><rect class="d" x="6" y="10" width="3" height="1" fill="url(#ldp-d)"/><rect x="0" y="11" width="1" height="1" fill="#000"/><rect x="9" y="11" width="1" height="1" fill="#000"/><rect class="g" x="1" y="11" width="8" height="1" fill="url(#ldp-g)"/><rect x="0" y="12" width="1" height="1" fill="#000"/><rect x="9" y="12" width="1" height="1" fill="#000"/><rect class="d" x="1" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="d" x="8" y="12" width="1" height="1" fill="url(#ldp-d)"/><rect class="g" x="2" y="12" width="6" height="1" fill="url(#ldp-g)"/><rect x="0" y="13" width="10" height="1" fill="#000"/><rect x="0" y="14" width="10" height="1" fill="#000"/></svg>{%- endcapture -%}
+{%- comment -%} /Sprites {%- endcomment -%}
+
+{%- comment -%} The little adventurer under the inventory: cheers for new loot, waits, or sleeps when nothing is free. {%- endcomment -%}
+{%- capture scene -%}
+<div class="ld-scene">
+  {%- if loot.count == 0 -%}{{ sp_hero_sleep }}{{ sp_chest_shut }}
+  {%- elsif loot.fresh > 0 -%}{{ sp_hero_yay }}{{ sp_chest_open }}
+  {%- else -%}{{ sp_hero_wait }}{{ sp_chest_shut }}{%- endif -%}
+  <div class="ld-bubble">
+    {%- if loot.count == 0 -%}<span class="ld-sm">Zzz... no loot</span>
+    {%- elsif loot.fresh > 0 -%}<span class="ld-sm">New loot!</span><span class="ld-sm">{{ loot.fresh }} dropped today</span>
+    {%- else -%}<span class="ld-sm">Waiting for loot...</span>{%- endif -%}
+    {%- if nx and loot.fresh == 0 -%}{%- assign nin = nx.starts | minus: loot.now -%}{%- assign nd = nin | divided_by: 86400 | floor -%}{%- assign nh = nin | modulo: 86400 | divided_by: 3600 | floor -%}<span class="ld-sm">Next drop in {% if nd > 0 %}{{ nd }}D {% endif %}{{ nh }}H</span>{%- endif -%}
+  </div>
+</div>
+{%- endcapture -%}
+
+{%- comment -%} When there is nothing to show: the stores did not answer, or nothing is free right now. {%- endcomment -%}
+{%- capture empty_screen -%}
+<div class="ld-empty">
+  <div class="ld-empty-art">{%- if loot.status == "offline" -%}{{ sp_hero_sleep }}{{ sp_chest_shut }}{%- else -%}{{ sp_hero_wait }}{{ sp_chest_shut }}{%- endif -%}</div>
+  <div class="ld-bubble">
+    {%- if loot.status == "offline" -%}
+      <span class="ld-px">Connection lost</span>
+      <span class="ld-sm">The loot servers did not answer. Retrying on the next refresh.</span>
+    {%- else -%}
+      <span class="ld-px">No free loot</span>
+      <span class="ld-sm">{% if nx %}{%- assign nin = nx.starts | minus: loot.now -%}{%- assign nd = nin | divided_by: 86400 | floor -%}{%- assign nh = nin | modulo: 86400 | divided_by: 3600 | floor -%}Next drop in {% if nd > 0 %}{{ nd }}D {% endif %}{{ nh }}H{% else %}Nothing is free in these stores right now. Check back later.{% endif %}</span>
+    {%- endif -%}
+  </div>
+</div>
+{%- endcapture -%}
+
+{%- comment -%} The featured drop as one card, reused by the smaller sizes. {%- endcomment -%}
+{%- capture hero_body -%}
+<div class="ld-foot"><div class="ld-body ld-grow">
+  <div class="ld-row ld-row--left"><span class="ld-tag ld-tag--on">{{ hero.store_name }}</span></div>
+  <span class="ld-px ld-clip">{{ hero.title }}</span>
+  <span class="ld-sm ld-clip"><span class="ld-strike">{{ hero.worth_txt }}</span> &gt;&gt; FREE</span>
+  {%- if hero.hp -%}{%- assign on = hero.hp | divided_by: 10 | round -%}
+  <div class="ld-row"><div class="ld-hp ld-grow">{%- for i in (1..10) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="ld-sm">{{ t_left[0] }}</span></div>
+  {%- endif -%}
+</div><div class="ld-qrbox"><div class="ld-qrwrap ld-qrwrap--md">{{ hero.url | qr_code: 2, "l", fixed }}</div></div></div>
+{%- endcapture -%}

@@ -1,0 +1,46 @@
+<div class="layout layout--col layout--stretch-x gap--small ld">
+  <div class="ld-hud">
+    <span class="ld-px">Loot Drop</span>
+    <span class="ld-sm">{% if loot.status == "partial" %}! some stores offline · {% endif %}{% if loot.status != "offline" %}WK {{ wk }} · {{ loot.count }} drops · ${{ loot.total }} in loot{% else %}offline{% endif %}</span>
+  </div>
+  {%- if hero -%}
+  <div class="ld-main">
+    <div class="ld-frame">
+      <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
+      <div class="ld-foot">
+      <div class="ld-body ld-grow">
+        <div class="ld-row">
+          <div class="ld-row"><span class="ld-tag ld-tag--on">{{ hero.store_name }}</span>{%- if hero.claims -%}<span class="ld-sm">{{ hero.claims | number_with_delimiter }} looted</span>{%- endif -%}</div>
+          <span class="ld-sm"><span class="ld-strike">{{ hero.worth_txt }}</span> &gt;&gt; FREE</span>
+        </div>
+        <span class="ld-px ld-clip">{{ hero.title }}</span>
+        {%- if hero.hp -%}{%- assign on = hero.hp | divided_by: 5 | round -%}
+        <div class="ld-row"><span class="ld-sm">HP</span><div class="ld-hp ld-grow">{%- for i in (1..20) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="ld-sm">{{ t_left[0] }}</span></div>
+        {%- else -%}
+        <span class="ld-sm">No despawn timer</span>
+        {%- endif -%}
+      </div>
+        <div class="ld-qrbox"><div class="ld-qrwrap ld-qrwrap--lg">{{ hero.url | qr_code: 3, "l", fixed }}</div></div>
+      </div>
+    </div>
+    <div class="ld-frame">
+      <div class="ld-bar"><span class="ld-sm">Inventory</span><span class="ld-sm">{{ loot.count | minus: 1 }} more</span></div>
+      <div class="ld-list">
+      {%- for it in loot.live offset: 1 limit: 8 -%}
+        <div class="ld-line"><span class="ld-tag">{{ it.store_name }}</span><span class="ld-sm ld-clip ld-grow">{{ it.title }}</span><span class="ld-sm">{% assign tl = t_left[forloop.index] %}{% if tl == "NO TIMER" %}--{% else %}{{ tl }}{% endif %}</span></div>
+      {%- endfor -%}
+      </div>
+      {{ scene }}
+    </div>
+  </div>
+    {%- else -%}
+  {{ empty_screen }}
+  {%- endif -%}
+  {%- if nx -%}
+  <div class="ld-toast">
+    <span class="ld-sm ld-blink">Incoming</span>
+    <span class="ld-px ld-clip ld-grow">{{ nx.title }}</span>
+    <span class="ld-sm">{{ nx.store }} · {{ nx_when }} · {{ nx.worth_txt }}</span>
+  </div>
+  {%- endif -%}
+</div>

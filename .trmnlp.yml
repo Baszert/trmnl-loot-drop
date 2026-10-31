@@ -1,0 +1,17 @@
+# TRMNLP configuration
+---
+watch:
+  - .trmnlp.yml
+  - src
+
+custom_fields:
+  stores: epic-games-store.steam.gog.ubisoft.origin.battlenet.itchio
+  country: NL
+
+variables:
+  trmnl:
+    user:
+      locale: en
+      utc_offset: 3600
+    plugin_settings:
+      instance_name: Loot Drop

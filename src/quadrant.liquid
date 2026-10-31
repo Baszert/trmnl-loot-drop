@@ -1,0 +1,16 @@
+<div class="layout layout--col layout--stretch-x ld">
+  {%- if hero -%}
+  <div class="ld-frame ld-grow">
+    <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
+    <div class="ld-foot"><div class="ld-body ld-grow">
+      <div class="ld-row ld-row--left"><span class="ld-tag ld-tag--on">{{ hero.store_name }}</span><span class="ld-sm">FREE</span></div>
+      <span class="ld-px ld-clip">{{ hero.title }}</span>
+      {%- if hero.hp -%}{%- assign on = hero.hp | divided_by: 10 | round -%}
+      <div class="ld-row"><div class="ld-hp ld-grow">{%- for i in (1..10) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="ld-sm">{{ t_left[0] }}</span></div>
+      {%- endif -%}
+    </div><div class="ld-qrbox"><div class="ld-qrwrap ld-qrwrap--md">{{ hero.url | qr_code: 2, "l", fixed }}</div></div></div>
+  </div>
+    {%- else -%}
+  {{ empty_screen }}
+  {%- endif -%}
+</div>

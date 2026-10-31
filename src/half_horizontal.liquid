@@ -1,0 +1,20 @@
+<div class="layout layout--col layout--stretch-x ld">
+  {%- if hero -%}
+  <div class="ld-main ld-main--hh">
+    <div class="ld-frame ld-frame--row">
+      <img class="image image-dither ld-art ld-art--side" src="{{ hero.tall | default: hero.wide }}" alt="">
+      {{ hero_body }}
+    </div>
+    <div class="ld-frame">
+      <div class="ld-bar"><span class="ld-sm">Inventory</span><span class="ld-sm">{{ loot.count | minus: 1 }} more</span></div>
+      <div class="ld-list">
+        {%- for it in loot.live offset: 1 limit: 6 -%}
+        <div class="ld-line"><span class="ld-tag">{{ it.store }}</span><span class="ld-sm ld-clip ld-grow">{{ it.title }}</span><span class="ld-sm">{% assign tl = t_left[forloop.index] %}{% if tl == "NO TIMER" %}--{% else %}{{ tl | split: " " | first }}{% endif %}</span></div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+    {%- else -%}
+  {{ empty_screen }}
+  {%- endif -%}
+</div>

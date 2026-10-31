@@ -1,0 +1,44 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+framework_version: 3.4.4
+serverless_language: node
+refresh_interval_floor: ''
+polling_url: |-
+  https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=en-US&country={{ country | default: "US" | upcase | strip }}&allowCountries={{ country | default: "US" | upcase | strip }}
+  https://www.gamerpower.com/api/filter?platform={{ stores | default: "epic-games-store.steam.gog.ubisoft.origin.battlenet.itchio" }}&type=game&sort-by=value
+polling_headers: ''
+polling_body: ''
+id: 520374
+oauth_enabled: 'false'
+oauth_pkce_enabled: 'no'
+custom_fields:
+- keyname: about
+  field_type: author_bio
+  name: About This Plugin
+  category: games,discovery
+  github_url: https://github.com/Baszert/trmnl-loot-drop
+  description: 'Free games, looted straight to your wall. Every game that is free to keep right now on Epic, Steam, GOG and itch.io, as an RPG inventory with an HP bar that drains until it despawns. Scan the QR, claim it, done.<br><br>No account. No keys. No grinding.<br><br>Data: Epic Games Store and <a href="https://www.gamerpower.com">GamerPower</a>.'
+  email_address: trmnl@achtnegen.nl
+- keyname: stores
+  field_type: select
+  name: Stores
+  description: Which stores to look in. Epic's weekly free games are always included.
+  options:
+  - Big stores and itch.io: epic-games-store.steam.gog.ubisoft.origin.battlenet.itchio
+  - Big stores only (Epic, Steam, GOG, Ubisoft, EA, Battle.net): epic-games-store.steam.gog.ubisoft.origin.battlenet
+  - Epic and Steam: epic-games-store.steam
+  - Everything on PC (also IndieGala and DRM-free): pc
+  default: epic-games-store.steam.gog.ubisoft.origin.battlenet.itchio
+- keyname: country
+  field_type: string
+  name: Country
+  description: Your two-letter country code, for Epic's prices and which games are free where you live.
+  placeholder: US
+  default: US
+name: Loot Drop
+description: Free games, looted to your wall
+refresh_interval: 15

@@ -1,0 +1,4 @@
+{
+ "http_error": 403,
+ "body": "{\"error\":\"This is a legacy API key, which reaches only the endpoints it had before API keys held capabilities. Create an API key with the capabilities you need at https://trmnl.com/account.\"}"
+}

@@ -1,33 +1,33 @@
 <div class="layout layout--col layout--stretch-x gap--small ld">
-  <div class="ld-hud">
-    <span class="ld-px">Loot Drop</span>
-    <span class="ld-sm">{% if loot.status == "partial" %}! some stores offline · {% endif %}{% if loot.status != "offline" %}WK {{ wk }} · {{ loot.count }} drops · ${{ loot.total }} in loot{% else %}offline{% endif %}</span>
+  <div class="flex flex--row flex--between flex--center-y bg--black text--white px--2 py--1 lg:px--3">
+    <span class="value value--small lg:value--base ld-px">Loot Drop</span>
+    <span class="label lg:label--large ld-sm no-shrink">{% if loot.status == "partial" %}! some stores offline · {% endif %}{% if loot.status != "offline" %}WK {{ wk }} · {{ loot.count }} drops · ${{ loot.total }} in loot{% else %}offline{% endif %}</span>
   </div>
   {%- if hero -%}
-  <div class="ld-main">
-    <div class="ld-frame">
-      <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
-      <div class="ld-foot">
-      <div class="ld-body ld-grow">
-        <div class="ld-row">
-          <div class="ld-row"><span class="ld-tag ld-tag--on">{{ hero.store_name }}</span>{%- if hero.claims -%}<span class="ld-sm">{{ hero.claims | number_with_delimiter }} looted</span>{%- endif -%}</div>
-          <span class="ld-sm"><span class="ld-strike">{{ hero.worth_txt }}</span> &gt;&gt; FREE</span>
+  <div class="ld-main grid grid--cols-12 gap--medium grow">
+    <div class="ld-frame col--span-7 portrait:col--span-12">
+      <img class="image image-dither image--cover w--full grow ld-art" src="{{ hero.wide }}" alt="">
+      <div class="flex flex--row flex--center-y gap--none">
+      <div class="ld-body grow flex flex--col flex--stretch-x gap--xsmall p--2 lg:gap--small lg:p--3">
+        <div class="flex flex--row flex--between flex--center-y gap--small">
+          <div class="flex flex--row flex--between flex--center-y gap--small"><span class="label lg:label--large ld-tag bg--black no-shrink">{{ hero.store_name }}</span>{%- if hero.claims -%}<span class="label lg:label--large ld-sm no-shrink">{{ hero.claims | number_with_delimiter }} looted</span>{%- endif -%}</div>
+          <span class="label lg:label--large ld-sm no-shrink"><span class="ld-strike">{{ hero.worth_txt }}</span> &gt;&gt; FREE</span>
         </div>
-        <span class="ld-px ld-clip">{{ hero.title }}</span>
+        <span class="value value--small lg:value--base ld-px ld-clip">{{ hero.title }}</span>
         {%- if hero.hp -%}{%- assign on = hero.hp | divided_by: 5 | round -%}
-        <div class="ld-row"><span class="ld-sm">HP</span><div class="ld-hp ld-grow">{%- for i in (1..20) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="ld-sm">{{ t_left[0] }}</span></div>
+        <div class="flex flex--row flex--between flex--center-y gap--small"><span class="label lg:label--large ld-sm no-shrink">HP</span><div class="ld-hp grow">{%- for i in (1..20) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="label lg:label--large ld-sm no-shrink">{{ t_left[0] }}</span></div>
         {%- else -%}
-        <span class="ld-sm">No despawn timer</span>
+        <span class="label lg:label--large ld-sm no-shrink">No despawn timer</span>
         {%- endif -%}
       </div>
-        <div class="ld-qrbox"><div class="ld-qrwrap ld-qrwrap--lg">{{ hero.url | qr_code: 3, "l", fixed }}</div></div>
+        <div class="no-shrink pr--1 lg:pr--2"><div class="ld-qrwrap ld-qrwrap--lg">{{ hero.url | qr_code: 3, "l", fixed }}</div></div>
       </div>
     </div>
-    <div class="ld-frame">
-      <div class="ld-bar"><span class="ld-sm">Inventory</span><span class="ld-sm">{{ loot.count | minus: 1 }} more</span></div>
-      <div class="ld-list">
-      {%- for it in loot.live offset: 1 limit: 8 -%}
-        <div class="ld-line"><span class="ld-tag">{{ it.store_name }}</span><span class="ld-sm ld-clip ld-grow">{{ it.title }}</span><span class="ld-sm">{% assign tl = t_left[forloop.index] %}{% if tl == "NO TIMER" %}--{% else %}{{ tl }}{% endif %}</span></div>
+    <div class="ld-frame col--span-5 portrait:col--span-12">
+      <div class="flex flex--row flex--between bg--black text--white px--2 py--1 lg:px--3"><span class="label lg:label--large ld-sm no-shrink">Inventory</span><span class="label lg:label--large ld-sm no-shrink">{{ loot.count | minus: 1 }} more</span></div>
+      <div class="ld-list grow flex flex--col flex--stretch-x gap--none">
+      {%- for it in loot.live offset: 1 limit: 9 -%}
+        {% if forloop.index > 8 %}<div class="ld-li hidden lg:landscape:visible">{% elsif forloop.index > 5 %}<div class="ld-li lg:portrait:hidden">{% else %}<div class="ld-li">{% endif %}<div class="ld-line flex flex--row flex--left flex--center-y gap--small px--2 py--1 lg:px--3 lg:py--2"><span class="label lg:label--large ld-tag no-shrink">{{ it.store_name }}</span><span class="label lg:label--large ld-sm ld-clip grow">{{ it.title }}</span><span class="label lg:label--large ld-sm no-shrink">{% assign tl = t_left[forloop.index] %}{% if tl == "NO TIMER" %}--{% else %}{{ tl }}{% endif %}</span></div></div>
       {%- endfor -%}
       </div>
       {{ scene }}
@@ -37,10 +37,10 @@
   {{ empty_screen }}
   {%- endif -%}
   {%- if nx -%}
-  <div class="ld-toast">
-    <span class="ld-sm ld-blink">Incoming</span>
-    <span class="ld-px ld-clip ld-grow">{{ nx.title }}</span>
-    <span class="ld-sm">{{ nx.store }} · {{ nx_when }} · {{ nx.worth_txt }}</span>
+  <div class="ld-toast flex flex--row flex--left flex--center-y gap px--2 py--1 mt--1 lg:px--3">
+    <span class="label lg:label--large ld-sm bg--black px--1">Incoming</span>
+    <span class="value value--small lg:value--base ld-px ld-clip grow">{{ nx.title }}</span>
+    <span class="label lg:label--large ld-sm no-shrink">{{ nx.store }} · {{ nx_when }} · {{ nx.worth_txt }}</span>
   </div>
   {%- endif -%}
 </div>

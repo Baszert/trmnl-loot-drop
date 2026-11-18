@@ -1,14 +1,14 @@
 <div class="layout layout--col layout--stretch-x ld">
   {%- if hero -%}
-  <div class="ld-frame ld-grow">
-    <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
-    <div class="ld-foot"><div class="ld-body ld-grow">
-      <div class="ld-row ld-row--left"><span class="ld-tag ld-tag--on">{{ hero.store_name }}</span><span class="ld-sm">FREE</span></div>
-      <span class="ld-px ld-clip">{{ hero.title }}</span>
+  <div class="ld-frame grow">
+    <img class="image image-dither image--cover w--full grow ld-art" src="{{ hero.wide }}" alt="">
+    <div class="flex flex--row flex--center-y gap--none"><div class="ld-body grow flex flex--col flex--stretch-x gap--xsmall p--2 lg:gap--small lg:p--3">
+      <div class="flex flex--row flex--left flex--center-y gap--small"><span class="label lg:label--large ld-tag bg--black no-shrink">{{ hero.store_name }}</span><span class="label lg:label--large ld-sm no-shrink">FREE</span></div>
+      <span class="value value--small lg:value--base ld-px ld-clip">{{ hero.title }}</span>
       {%- if hero.hp -%}{%- assign on = hero.hp | divided_by: 10 | round -%}
-      <div class="ld-row"><div class="ld-hp ld-grow">{%- for i in (1..10) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="ld-sm">{{ t_left[0] }}</span></div>
+      <div class="flex flex--row flex--between flex--center-y gap--small"><div class="ld-hp grow">{%- for i in (1..10) -%}<i{% if i <= on %} class="on"{% endif %}></i>{%- endfor -%}</div><span class="label lg:label--large ld-sm no-shrink">{{ t_left[0] }}</span></div>
       {%- endif -%}
-    </div><div class="ld-qrbox"><div class="ld-qrwrap ld-qrwrap--md">{{ hero.url | qr_code: 2, "l", fixed }}</div></div></div>
+    </div><div class="no-shrink pr--1 lg:pr--2"><div class="ld-qrwrap ld-qrwrap--md">{{ hero.url | qr_code: 2, "l", fixed }}</div></div></div>
   </div>
     {%- else -%}
   {{ empty_screen }}

@@ -1,19 +1,24 @@
 <div class="layout layout--col layout--stretch-x gap--small ld">
-  <div class="ld-hud"><span class="ld-px">Loot Drop</span><span class="ld-sm">{% if loot.status == "offline" %}offline{% else %}{{ loot.count }} drops{% endif %}</span></div>
+  <div class="flex flex--row flex--between flex--center-y bg--black text--white px--2 py--1 lg:px--3"><span class="value value--small lg:value--base ld-px">Loot Drop</span><span class="label lg:label--large ld-sm no-shrink">{% if loot.status == "offline" %}offline{% else %}{{ loot.count }} drops{% endif %}</span></div>
   {%- if hero -%}
-  <div class="ld-frame ld-grow">
-    <img class="image image-dither ld-art" src="{{ hero.wide }}" alt="">
+  <div class="ld-frame grow">
+    <img class="image image-dither image--cover w--full grow ld-art" src="{{ hero.wide }}" alt="">
     {{ hero_body }}
   </div>
   <div class="ld-frame">
     {%- for it in loot.live offset: 1 limit: 2 -%}
-    <div class="ld-slot ld-slot--tight"><span class="ld-sm ld-clip ld-grow">{{ it.title }}</span><span class="ld-tag">{{ it.store_name }}</span></div>
+    <div class="ld-slot flex flex--row flex--left flex--center-y gap--small px--1 py--1 lg:px--2"><span class="label lg:label--large ld-sm ld-clip grow">{{ it.title }}</span><span class="label lg:label--large ld-tag no-shrink">{{ it.store_name }}</span></div>
     {%- endfor -%}
+    <div class="ld-more hidden lg:portrait:visible">
+    {%- for it in loot.live offset: 3 limit: 5 -%}
+    <div class="ld-slot flex flex--row flex--left flex--center-y gap--small px--1 py--1 lg:px--2"><span class="label lg:label--large ld-sm ld-clip grow">{{ it.title }}</span><span class="label lg:label--large ld-tag no-shrink">{{ it.store_name }}</span></div>
+    {%- endfor -%}
+    </div>
   </div>
     {%- else -%}
   {{ empty_screen }}
   {%- endif -%}
   {%- if nx -%}
-  <div class="ld-toast"><span class="ld-sm ld-blink">Next</span><span class="ld-sm ld-clip ld-grow">{{ nx.title }}</span><span class="ld-sm">{{ nx_when | split: " " | first }}</span></div>
+  <div class="ld-toast flex flex--row flex--left flex--center-y gap px--2 py--1 mt--1 lg:px--3"><span class="label lg:label--large ld-sm bg--black px--1">Next</span><span class="label lg:label--large ld-sm ld-clip grow">{{ nx.title }}</span><span class="label lg:label--large ld-sm no-shrink">{{ nx_when | split: " " | first }}</span></div>
   {%- endif -%}
 </div>

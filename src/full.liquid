@@ -26,7 +26,7 @@
     <div class="ld-frame col--span-5 portrait:col--span-12">
       <div class="flex flex--row flex--between bg--black text--white px--2 py--1 lg:px--3"><span class="label lg:label--large ld-sm no-shrink">Inventory</span><span class="label lg:label--large ld-sm no-shrink">{{ loot.count | minus: 1 }} more</span></div>
       <div class="ld-list grow flex flex--col flex--stretch-x gap--none">
-      {%- for it in loot.live offset: 1 limit: 9 -%}
+      {%- for it in loot.live offset: 1 limit: 11 -%}
         {% if forloop.index > 8 %}<div class="ld-li hidden lg:landscape:visible">{% elsif forloop.index > 5 %}<div class="ld-li lg:portrait:hidden">{% else %}<div class="ld-li">{% endif %}<div class="ld-line flex flex--row flex--left flex--center-y gap--small px--2 py--1 lg:px--3 lg:py--2"><span class="label lg:label--large ld-tag no-shrink">{{ it.store_name }}</span><span class="label lg:label--large ld-sm ld-clip grow">{{ it.title }}</span><span class="label lg:label--large ld-sm no-shrink">{% assign tl = t_left[forloop.index] %}{% if tl == "NO TIMER" %}--{% else %}{{ tl }}{% endif %}</span></div></div>
       {%- endfor -%}
       </div>
